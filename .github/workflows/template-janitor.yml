@@ -237,6 +237,7 @@ jobs:
           cmake -S . -B ./build -G "${{ matrix.generator }}" -DCMAKE_BUILD_TYPE:STRING=${{ matrix.build_type }} -DENABLE_DEVELOPER_MODE:BOOL=${{ matrix.developer_mode }} -DOPT_ENABLE_COVERAGE:BOOL=OFF
 
       - uses: EndBug/add-and-commit@v4
+        id: add_and_commit
         # only commit and push if we are a template and project name has changed
         if: fromJson(steps.get_repo_meta.outputs.data).is_template == true && env.TEST_RUN == 'false'
         with:
@@ -245,3 +246,10 @@ jobs:
           message: 'Change Template Name'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Verify change was pushed
+        if: ${{ steps.add_and_commit.outputs.pushed == 'false' }} && ${{ steps.add_and_commit.outputs.committed == 'true' }}
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.setFailed('Changes were not pushed. If you just forked this project please enable write access for actions on it')
