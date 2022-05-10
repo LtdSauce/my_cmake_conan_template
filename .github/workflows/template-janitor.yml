@@ -248,7 +248,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Verify change was pushed
-        if: ${{ steps.add_and_commit.outputs.pushed == 'false' }} && ${{ steps.add_and_commit.outputs.committed == 'true' }}
+        if: steps.add_and_commit.conclusion == 'success' && steps.add_and_commit.outputs.committed == 'true' && steps.add_and_commit.outputs.pushed == 'false'
         uses: actions/github-script@v3
         with:
           script: |
